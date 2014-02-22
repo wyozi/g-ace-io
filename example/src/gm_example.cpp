@@ -106,6 +106,18 @@ int LuaFunc_ReadFile( lua_State* state )
 	return 2;
 }
 
+int LuaFunc_DeleteFile( lua_State* state )
+{
+	if ( LUA->IsType( 1, Type::STRING ) )
+	{
+		int ret = remove(LUA->GetString(1));
+
+		LUA->PushBool(true);
+		return 1;
+	}
+	return 0;
+}
+
 int LuaFunc_WriteToFile( lua_State* state )
 {
 	if ( LUA->IsType( 1, Type::STRING ) && LUA->IsType( 2, Type::STRING ) )
@@ -173,8 +185,6 @@ int LuaFunc_CreateFolder( lua_State* state )
 		int ret = mkdir(LUA->GetString(1));
 #endif // _WIN32
 
-
-
 		if (ret != 0) {
 			LUA->PushBool(false);
 
@@ -211,6 +221,10 @@ GMOD_MODULE_OPEN()
 
 	LUA->PushString( "Write" );
 	LUA->PushCFunction( LuaFunc_WriteToFile );
+	LUA->SetTable( -3 );
+
+	LUA->PushString( "Delete" );
+	LUA->PushCFunction( LuaFunc_DeleteFile );
 	LUA->SetTable( -3 );
 
 	LUA->PushString( "IsFolder" );
