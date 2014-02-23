@@ -76,6 +76,9 @@ int LuaFunc_ReadFile( lua_State* state )
 {
 	if ( LUA->IsType( 1, Type::STRING ) )
 	{
+		
+
+		std::ifstream in("FileReadExample.cpp");
 		std::ifstream t;
 		t.open(LUA->GetString(1));
 
@@ -86,18 +89,9 @@ int LuaFunc_ReadFile( lua_State* state )
 			return 2;
 		}
 
-		// Get length of the file
-		int length;
-		t.seekg(0, std::ios::end);
-		length = t.tellg();
-		t.seekg(0, std::ios::beg);
+		std::string contents((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
-		// Allocate buffer of length
-		char* buffer = new char[length];
-		t.read(buffer, length);
-		t.close();
-
-		LUA->PushString(buffer);
+		LUA->PushString(contents.c_str());
 
 		return 1;
 	}
