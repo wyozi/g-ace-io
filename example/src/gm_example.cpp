@@ -77,8 +77,6 @@ int LuaFunc_ReadFile( lua_State* state )
 	if ( LUA->IsType( 1, Type::STRING ) )
 	{
 		
-
-		std::ifstream in("FileReadExample.cpp");
 		std::ifstream t;
 		t.open(LUA->GetString(1));
 
