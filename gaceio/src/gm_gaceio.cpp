@@ -13,6 +13,7 @@
 #include <string.h>
 #include <errno.h> 
 #include <dirent.h>
+#include <stdlib.h>
 #endif
 
 #include <stdio.h>
