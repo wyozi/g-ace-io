@@ -195,6 +195,60 @@ int LuaFunc_CreateFolder( lua_State* state )
 	return 2;
 }
 
+const char* ExecSystemCmd(const char* cmd) {
+
+#ifdef _WIN32
+	FILE* pipe = _popen(cmd, "r");
+#else
+	FILE* pipe = popen(cmd, "r");
+#endif
+
+    if (!pipe) {
+		int errornum = errno;
+
+		std::ostringstream s;
+		s << "ERROR " << errornum;
+
+		return s.str().c_str();
+	}
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe)) {
+    	if(fgets(buffer, 128, pipe) != NULL)
+    		result += buffer;
+    }
+
+#ifdef _WIN32
+	_pclose(pipe);
+#else
+	pclose(pipe);
+#endif
+
+	return result.c_str();
+}
+
+int LuaFunc_RunSystemCommand( lua_State* state )
+{
+	LUA->CheckString( 1 );
+	const char* cmd = LUA->GetString( 1 );
+	const char* result = ExecSystemCmd(cmd);
+	LUA->PushString( result );
+
+	return 1;
+}
+
+// RunSystemCommand that uses "system" and thus can only return an integer (the return code of the system func call)
+int LuaFunc_RunSimpleSystemCommand( lua_State* state )
+{
+	LUA->CheckString( 1 );
+
+	const char* cmd = LUA->GetString( 1 );
+	int result = system(cmd);
+
+	LUA->PushNumber(result);
+	return 1;
+}
+
 GMOD_MODULE_OPEN()
 {
 
@@ -202,6 +256,8 @@ GMOD_MODULE_OPEN()
 	
 	LUA->PushString( "gaceio" );
 	LUA->CreateTable();
+
+	// File IO
 
 	LUA->PushString( "List" );
 	LUA->PushCFunction( LuaFunc_ListDir );
@@ -229,6 +285,16 @@ GMOD_MODULE_OPEN()
 	
 	LUA->PushString( "CreateFolder" );
 	LUA->PushCFunction( LuaFunc_CreateFolder );
+	LUA->SetTable( -3 );
+
+	// System IO
+
+	LUA->PushString("RunSystemCommand");
+	LUA->PushCFunction( LuaFunc_RunSystemCommand );
+	LUA->SetTable( -3 );
+	
+	LUA->PushString("RunSimpleSystemCommand");
+	LUA->PushCFunction( LuaFunc_RunSimpleSystemCommand );
 	LUA->SetTable( -3 );
 
 	LUA->SetTable( -3 );
