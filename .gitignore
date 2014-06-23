@@ -1,4 +1,4 @@
-example/linux-gmake
-example/macosx-gmake
-example/windows-vs2010
-example/lib
+gaceio/linux-gmake
+gaceio/macosx-gmake
+gaceio/windows-vs2010
+gaceio/lib

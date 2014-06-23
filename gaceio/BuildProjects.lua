@@ -1,4 +1,4 @@
-solution "gmsv_example"
+solution "gmsv_gaceio"
 
 	language "C++"
 	location ( os.get() .."-".. _ACTION )
@@ -15,7 +15,7 @@ solution "gmsv_example"
 		defines { "NDEBUG" }
 		flags{ "Optimize", "FloatFast" }
 	
-	project "gmsv_example"
+	project "gmsv_gaceio"
 		defines { "GMMODULE" }
 		files { "src/**.*", "../include/**.*" }
 		kind "SharedLib"
