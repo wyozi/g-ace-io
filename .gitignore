@@ -1,4 +1,4 @@
-gaceio/linux-gmake
-gaceio/macosx-gmake
-gaceio/windows-vs2010
-gaceio/lib
+linux-gmake
+macosx-gmake
+windows-vs2010
+lib
