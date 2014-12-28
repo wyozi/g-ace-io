@@ -5,14 +5,13 @@ using namespace GarrysMod::Lua;
 
 int LuaFunc_ListDir( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
+	const Bootil::BString& folder = LUA->CheckString(1);
+
+	if (!Bootil::File::IsFolder(folder)) {
 		LUA->PushBool(false);
 		LUA->PushString("First parameter not a string");
 		return 2;
 	}
-
-	const Bootil::BString& folder = LUA->GetString(1);
 	Bootil::String::List files;
 	Bootil::String::List folders;
 	Bootil::File::Find(&files, &folders, folder + "/*", false);
@@ -46,15 +45,8 @@ int LuaFunc_ListDir( lua_State* state )
 
 int LuaFunc_ReadFile( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
 	Bootil::BString out;
-	if (!Bootil::File::Read(LUA->GetString(1), out)) {
+	if (!Bootil::File::Read(LUA->CheckString(1), out)) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
@@ -66,21 +58,14 @@ int LuaFunc_ReadFile( lua_State* state )
 
 int LuaFunc_Delete( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
-	const Bootil::BString& targ = LUA->GetString(1);
+	const Bootil::BString& targ = LUA->CheckString(1);
 
 	bool success;
 	if (Bootil::File::IsFolder(targ)) {
 		success = Bootil::File::RemoveFolder(targ); // TODO should we recursively remove (2nd param)?
 	}
 	else {
-		success = Bootil::File::RemoveFile(LUA->GetString(1));
+		success = Bootil::File::RemoveFile(targ);
 	}
 
 	if (!success) {
@@ -94,20 +79,8 @@ int LuaFunc_Delete( lua_State* state )
 
 int LuaFunc_WriteToFile( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-	if ( !LUA->IsType( 2, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("Second parameter not a string");
-		return 2;
-	}
 	
-	if (!Bootil::File::Write(LUA->GetString(1), LUA->GetString(2))) {
+	if (!Bootil::File::Write(LUA->CheckString(1), LUA->CheckString(2))) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
@@ -118,42 +91,20 @@ int LuaFunc_WriteToFile( lua_State* state )
 
 int LuaFunc_IsFolder( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
-	LUA->PushBool(Bootil::File::IsFolder(LUA->GetString(1)));
+	LUA->PushBool(Bootil::File::IsFolder(LUA->CheckString(1)));
 	return 1;
 }
 
 int LuaFunc_Exists( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
 	// Bootil::File::Exists actually returns a boolean
-	LUA->PushBool(Bootil::File::Exists(LUA->GetString(1)));
+	LUA->PushBool(Bootil::File::Exists(LUA->CheckString(1)));
 	return 1;
 }
 
 int LuaFunc_CreateFolder( lua_State* state )
 {
-	
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-	
-	if (!Bootil::File::CreateFolder(LUA->GetString(1))) {
+	if (!Bootil::File::CreateFolder(LUA->CheckString(1))) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
@@ -172,40 +123,19 @@ int FileLastModified(const Bootil::BString& strFileName) {
 
 int LuaFunc_Time( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
-	LUA->PushNumber(FileLastModified(LUA->GetString(1)));
+	LUA->PushNumber(FileLastModified(LUA->CheckString(1)));
 	return 1;
 }
 
 int LuaFunc_Size( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
-	LUA->PushNumber(Bootil::File::Size(LUA->GetString(1)));
+	LUA->PushNumber(Bootil::File::Size(LUA->CheckString(1)));
 	return 1;
 }
 
 int LuaFunc_CRC( lua_State* state )
 {
-	if ( !LUA->IsType( 1, Type::STRING ) )
-	{
-		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
-		return 2;
-	}
-
-	LUA->PushNumber(Bootil::File::CRC(LUA->GetString(1)));
+	LUA->PushNumber(Bootil::File::CRC(LUA->CheckString(1)));
 	return 1;
 }
 
