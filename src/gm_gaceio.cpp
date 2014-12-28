@@ -20,7 +20,8 @@ int LuaFunc_ListDir( lua_State* state )
 	// Files
 	LUA->CreateTable();
 	int i = 1;
-	for (auto f = files.begin(); f != files.end(); ++f) {
+
+	BOOTIL_FOREACH (f, files, Bootil::String::List) {
 		LUA->PushNumber(i);
 		LUA->PushString((*f).c_str());
 		LUA->SetTable(-3);
@@ -31,7 +32,8 @@ int LuaFunc_ListDir( lua_State* state )
 	// Folders
 	LUA->CreateTable();
 	i = 1;
-	for (auto f = folders.begin(); f != folders.end(); ++f) {
+
+	BOOTIL_FOREACH (f, folders, Bootil::String::List) {
 		LUA->PushNumber(i);
 		LUA->PushString((*f).c_str());
 		LUA->SetTable(-3);

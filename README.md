@@ -20,3 +20,4 @@ Grab binaries from Downloads tab, dump them into garrysmod/lua/bin, call ```requ
 
 ## Compilation
 You need Garry's Bootil https://github.com/garrynewman/bootil
+Remember to change BuildProjects.lua "links" location to where-ever you compiled bootil to.

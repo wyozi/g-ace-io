@@ -12,7 +12,7 @@ solution "gmsv_gaceio"
 		links {"F:/bootil/lib/windows/vs2010/bootil_static"}
 	elseif os.is("linux") then
 		targetsuffix ("_linux")
-		links {"bootil_static"}
+		links {"../../bootil/lib/linux/gmake/bootil_static"}
 	end
 
 	configurations
