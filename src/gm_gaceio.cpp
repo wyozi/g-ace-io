@@ -136,6 +136,7 @@ int LuaFunc_Exists( lua_State* state )
 		return 2;
 	}
 
+	// Bootil::File::Exists actually returns a boolean
 	LUA->PushBool(Bootil::File::Exists(LUA->GetString(1)));
 	return 1;
 }
@@ -159,6 +160,40 @@ int LuaFunc_CreateFolder( lua_State* state )
 	return 0;
 }
 
+int FileLastModified(const Bootil::BString& strFileName) {
+	struct stat fileStat;
+	int err = stat( strFileName.c_str(), &fileStat );
+	if ( err != 0 ) { return 0; }
+	return fileStat.st_mtime;
+}
+
+
+int LuaFunc_Time( lua_State* state )
+{
+	if ( !LUA->IsType( 1, Type::STRING ) )
+	{
+		LUA->PushBool(false);
+		LUA->PushString("First parameter not a string");
+		return 2;
+	}
+
+	LUA->PushNumber(FileLastModified(LUA->GetString(1)));
+	return 1;
+}
+
+int LuaFunc_Size( lua_State* state )
+{
+	if ( !LUA->IsType( 1, Type::STRING ) )
+	{
+		LUA->PushBool(false);
+		LUA->PushString("First parameter not a string");
+		return 2;
+	}
+
+	LUA->PushNumber(Bootil::File::Size(LUA->GetString(1)));
+	return 1;
+}
+
 #define LUA_TABLE_SET_CFUNC(name, func) \
 	LUA->PushString( name ); \
 	LUA->PushCFunction( func ); \
@@ -174,31 +209,15 @@ GMOD_MODULE_OPEN()
 
 	// File IO
 
-	LUA_TABLE_SET_CFUNC( "List", LuaFunc_ListDir );
-
-	LUA->PushString( "Read" );
-	LUA->PushCFunction( LuaFunc_ReadFile );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "Write" );
-	LUA->PushCFunction( LuaFunc_WriteToFile );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "Delete" );
-	LUA->PushCFunction( LuaFunc_Delete );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "IsFolder" );
-	LUA->PushCFunction( LuaFunc_IsFolder );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "Exists" );
-	LUA->PushCFunction( LuaFunc_Exists );
-	LUA->SetTable( -3 );
-
-	LUA->PushString( "CreateFolder" );
-	LUA->PushCFunction( LuaFunc_CreateFolder );
-	LUA->SetTable( -3 );
+	LUA_TABLE_SET_CFUNC("List", LuaFunc_ListDir);
+	LUA_TABLE_SET_CFUNC("Read", LuaFunc_ReadFile);
+	LUA_TABLE_SET_CFUNC("Write", LuaFunc_WriteToFile);
+	LUA_TABLE_SET_CFUNC("Delete", LuaFunc_Delete);
+	LUA_TABLE_SET_CFUNC("IsDir", LuaFunc_IsFolder);
+	LUA_TABLE_SET_CFUNC("Exists", LuaFunc_Exists);
+	LUA_TABLE_SET_CFUNC("CreateDir", LuaFunc_CreateFolder);
+	LUA_TABLE_SET_CFUNC("Time", LuaFunc_Time);
+	LUA_TABLE_SET_CFUNC("Size", LuaFunc_Size);
 
 	LUA->SetTable( -3 );
 
