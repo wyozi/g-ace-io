@@ -196,6 +196,19 @@ int LuaFunc_Size( lua_State* state )
 	return 1;
 }
 
+int LuaFunc_CRC( lua_State* state )
+{
+	if ( !LUA->IsType( 1, Type::STRING ) )
+	{
+		LUA->PushBool(false);
+		LUA->PushString("First parameter not a string");
+		return 2;
+	}
+
+	LUA->PushNumber(Bootil::File::CRC(LUA->GetString(1)));
+	return 1;
+}
+
 #define LUA_TABLE_SET_CFUNC(name, func) \
 	LUA->PushString( name ); \
 	LUA->PushCFunction( func ); \
@@ -220,6 +233,7 @@ GMOD_MODULE_OPEN()
 	LUA_TABLE_SET_CFUNC("CreateDir", LuaFunc_CreateFolder);
 	LUA_TABLE_SET_CFUNC("Time", LuaFunc_Time);
 	LUA_TABLE_SET_CFUNC("Size", LuaFunc_Size);
+	LUA_TABLE_SET_CFUNC("CRC", LuaFunc_CRC);
 
 	LUA->SetTable( -3 );
 
