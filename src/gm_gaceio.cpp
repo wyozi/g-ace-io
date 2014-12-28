@@ -13,12 +13,25 @@ int LuaFunc_ListDir( lua_State* state )
 	}
 
 	const Bootil::BString& folder = LUA->GetString(1);
-	Bootil::String::List list;
-	int files = Bootil::File::GetFilesInFolder(folder, list, false);
+	Bootil::String::List files;
+	Bootil::String::List folders;
+	Bootil::File::Find(&files, &folders, folder + "/*", false);
 
+	// Files
 	LUA->CreateTable();
 	int i = 1;
-	for (auto f = list.begin(); f != list.end(); ++f) {
+	for (auto f = files.begin(); f != files.end(); ++f) {
+		LUA->PushNumber(i);
+		LUA->PushString((*f).c_str());
+		LUA->SetTable(-3);
+
+		i++;
+	}
+
+	// Folders
+	LUA->CreateTable();
+	i = 1;
+	for (auto f = folders.begin(); f != folders.end(); ++f) {
 		LUA->PushNumber(i);
 		LUA->PushString((*f).c_str());
 		LUA->SetTable(-3);
@@ -26,7 +39,7 @@ int LuaFunc_ListDir( lua_State* state )
 		i++;
 	}
 	
-	return 1;
+	return 2;
 }
 
 int LuaFunc_ReadFile( lua_State* state )
