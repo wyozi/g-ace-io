@@ -62,7 +62,7 @@ int LuaFunc_ReadFile( lua_State* state )
 	return 1;
 }
 
-int LuaFunc_DeleteFile( lua_State* state )
+int LuaFunc_Delete( lua_State* state )
 {
 	if ( !LUA->IsType( 1, Type::STRING ) )
 	{
@@ -71,7 +71,17 @@ int LuaFunc_DeleteFile( lua_State* state )
 		return 2;
 	}
 
-	if (!Bootil::File::RemoveFile(LUA->GetString(1))) {
+	const Bootil::BString& targ = LUA->GetString(1);
+
+	bool success;
+	if (Bootil::File::IsFolder(targ)) {
+		success = Bootil::File::RemoveFolder(targ); // TODO should we recursively remove (2nd param)?
+	}
+	else {
+		success = Bootil::File::RemoveFile(LUA->GetString(1));
+	}
+
+	if (!success) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
@@ -175,7 +185,7 @@ GMOD_MODULE_OPEN()
 	LUA->SetTable( -3 );
 
 	LUA->PushString( "Delete" );
-	LUA->PushCFunction( LuaFunc_DeleteFile );
+	LUA->PushCFunction( LuaFunc_Delete );
 	LUA->SetTable( -3 );
 
 	LUA->PushString( "IsFolder" );
