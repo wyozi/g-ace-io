@@ -1,7 +1,39 @@
 #include "GarrysMod/Lua/Interface.h"
 #include "Bootil/Bootil.h"
 
+#ifdef __linux__
+#include <dirent.h>
+#endif
+
 using namespace GarrysMod::Lua;
+
+void TraverseFolder(const Bootil::BString& folder, Bootil::String::List* files, Bootil::String::List* folders) {
+	// Don't use this function on linux. Seriously.
+	//Bootil::File::Find(&files, &folders, folder + "/*", false);
+
+#ifdef __linux__
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir(folder.c_str())) != NULL) {
+		while ((ent = readdir (dir)) != NULL) {
+			// Ignore symlinks etc
+			if (ent->d_type == DT_REG) {
+				files->push_back(ent->d_name);
+			}
+			else if (ent->d_type == DT_DIR && strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..") != 0) {
+				folders->push_back(ent->d_name);
+			}
+		}
+		closedir (dir);
+	}
+#endif
+
+#ifdef _WIN32
+	// Bootil does a good job when it's Windows, so we'll just use Bootil code here
+	Bootil::File::Find(files, folders, folder + "/*", false);
+#endif
+
+}
 
 int LuaFunc_ListDir( lua_State* state )
 {
@@ -12,9 +44,12 @@ int LuaFunc_ListDir( lua_State* state )
 		LUA->PushString("First parameter not a string");
 		return 2;
 	}
+
+
 	Bootil::String::List files;
 	Bootil::String::List folders;
-	Bootil::File::Find(&files, &folders, folder + "/*", false);
+
+	TraverseFolder(folder, &files, &folders);
 
 	// Files
 	LUA->CreateTable();
