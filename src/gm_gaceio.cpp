@@ -86,8 +86,8 @@ int LuaFunc_ReadFile( lua_State* state )
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
 	}
-	
-	LUA->PushString(out.c_str());
+
+	LUA->PushString(out.c_str(), out.length());
 	return 1;
 }
 
@@ -114,8 +114,17 @@ int LuaFunc_Delete( lua_State* state )
 
 int LuaFunc_WriteToFile( lua_State* state )
 {
-	
-	if (!Bootil::File::Write(LUA->CheckString(1), LUA->CheckString(2))) {
+	const char* path = LUA->CheckString(1);
+
+	LUA->CheckString(2);
+
+	// If data string contains null bytes, the string is prematurely truncated unless we get the size explicitly
+	size_t len;
+	const char* data = LUA->GetString(2, &len);
+
+	const Bootil::BString &strOut = std::string(data, len);
+
+	if (!Bootil::File::Write(path, strOut)) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
