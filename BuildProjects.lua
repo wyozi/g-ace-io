@@ -4,7 +4,7 @@ solution "gmsv_gaceio"
 	location ( os.get() .."-".. _ACTION )
 	flags { "Symbols", "NoEditAndContinue", "NoPCH", "StaticRuntime", "EnableSSE" }
 	targetdir ( "lib/" .. os.get() .. "/" )
-	includedirs { "include/" }
+	includedirs { "include/", "src/thirdparty/" }
 
 	targetname ("gmsv_gaceio")
 	if os.is("windows") then
@@ -12,7 +12,7 @@ solution "gmsv_gaceio"
 		links {"F:/bootil/lib/windows/vs2010/bootil_static"}
 	elseif os.is("linux") then
 		targetsuffix ("_linux")
-		links {"../../bootil/lib/linux/gmake/bootil_static"}
+		links {"../bootil/lib/linux/gmake/bootil_static"}
 	end
 
 	configurations

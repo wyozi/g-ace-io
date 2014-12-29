@@ -1,5 +1,6 @@
 #include "GarrysMod/Lua/Interface.h"
 #include "Bootil/Bootil.h"
+#include "bzip2/bzlib.h"
 
 #ifdef __linux__
 #include <dirent.h>
@@ -183,6 +184,33 @@ int LuaFunc_CRC( lua_State* state )
 	return 1;
 }
 
+int LuaFunc_BZip2( lua_State* state )
+{
+	LUA->CheckString(1);
+
+	size_t len;
+	const char* data = LUA->GetString(1, &len);
+
+	// This guarantees that compressed data will fit dest
+	// or does it? *1.01 on an int might be too small
+	size_t guaranteedLen = len * 1.01 + 600;
+
+	char* dest = (char*) malloc(sizeof(char) * guaranteedLen);
+	size_t destLen;
+
+	int ret = BZ2_bzBuffToBuffCompress(dest, &destLen, (char*) data, len, 5, 0, 30);
+
+	if (ret == BZ_OK) {
+		LUA->PushString(dest, destLen);
+		return 1;
+	}
+
+	LUA->PushBool(false);
+	LUA->PushNumber(ret); // TODO this is lazy
+
+	return 2;
+}
+
 #define LUA_TABLE_SET_CFUNC(name, func) \
 	LUA->PushString( name ); \
 	LUA->PushCFunction( func ); \
@@ -208,6 +236,8 @@ GMOD_MODULE_OPEN()
 	LUA_TABLE_SET_CFUNC("Time", LuaFunc_Time);
 	LUA_TABLE_SET_CFUNC("Size", LuaFunc_Size);
 	LUA_TABLE_SET_CFUNC("CRC", LuaFunc_CRC);
+	
+	LUA_TABLE_SET_CFUNC("BZip2", LuaFunc_BZip2);
 
 	LUA->SetTable( -3 );
 
