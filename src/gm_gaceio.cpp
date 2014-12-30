@@ -40,9 +40,15 @@ int LuaFunc_ListDir( lua_State* state )
 {
 	const Bootil::BString& folder = LUA->CheckString(1);
 
+	if (!Bootil::File::Exists(folder)) {
+		LUA->PushBool(false);
+		LUA->PushString("Folder does not exist");
+		return 2;
+	}
+
 	if (!Bootil::File::IsFolder(folder)) {
 		LUA->PushBool(false);
-		LUA->PushString("Attempting to list a file");
+		LUA->PushString("Cannot list a non-folder");
 		return 2;
 	}
 
