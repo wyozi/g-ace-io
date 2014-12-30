@@ -42,7 +42,7 @@ int LuaFunc_ListDir( lua_State* state )
 
 	if (!Bootil::File::IsFolder(folder)) {
 		LUA->PushBool(false);
-		LUA->PushString("First parameter not a string");
+		LUA->PushString("Attempting to list a file");
 		return 2;
 	}
 
