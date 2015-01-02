@@ -14,7 +14,9 @@ number        gaceio.Time(path)
               gaceio.Write(path, str)
 
 string        gaceio.CRC(path) // Returns a CRC32
+
 string        gaceio.BZip2(str) // Note: takes a str parameter, not a path
+              gaceio.WriteBZip2(path, str) // Compresses and writes str
 ```
 
 Path is relative to GarrysMod folder (aka the folder from which you launch srcds or gmod client). So for example to list addons you would use ```gaceio.List("./garrysmod/addons")```.

@@ -208,13 +208,53 @@ int LuaFunc_BZip2( lua_State* state )
 
 	if (ret == BZ_OK) {
 		LUA->PushString(dest, destLen);
+		free(dest);
 		return 1;
 	}
+
+	free(dest);
 
 	LUA->PushBool(false);
 	LUA->PushNumber(ret); // TODO this is lazy
 
 	return 2;
+}
+
+int LuaFunc_WriteBZip2( lua_State* state )
+{
+	const char* path = LUA->CheckString(1);
+	LUA->CheckString(2);
+
+	size_t len;
+	const char* data = LUA->GetString(2, &len);
+
+	// This guarantees that compressed data will fit dest
+	// or does it? *1.01 on an int might be too small
+	size_t guaranteedLen = len * 1.01 + 600;
+
+	char* dest = (char*) malloc(sizeof(char) * guaranteedLen);
+	size_t destLen;
+
+	int ret = BZ2_bzBuffToBuffCompress(dest, &destLen, (char*) data, len, 5, 0, 30);
+
+	if (ret != BZ_OK) {
+		free(dest);
+
+		LUA->PushBool(false);
+		LUA->PushNumber(ret); // TODO push err string, not id?
+		return 2;
+	}
+
+	const Bootil::BString &strOut = std::string(dest, destLen);
+	free(dest);
+
+	if (!Bootil::File::Write(path, strOut)) {
+		LUA->PushBool(false);
+		LUA->PushString(Bootil::Platform::LastError().c_str());
+		return 2;
+	}
+
+	return 0;
 }
 
 #define LUA_TABLE_SET_CFUNC(name, func) \
@@ -244,6 +284,7 @@ GMOD_MODULE_OPEN()
 	LUA_TABLE_SET_CFUNC("CRC", LuaFunc_CRC);
 	
 	LUA_TABLE_SET_CFUNC("BZip2", LuaFunc_BZip2);
+	LUA_TABLE_SET_CFUNC("WriteBZip2", LuaFunc_WriteBZip2);
 
 	LUA->SetTable( -3 );
 
