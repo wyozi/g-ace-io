@@ -9,8 +9,7 @@
 using namespace GarrysMod::Lua;
 
 void TraverseFolder(const Bootil::BString& folder, Bootil::String::List* files, Bootil::String::List* folders) {
-	// Don't use this function on linux. Seriously.
-	//Bootil::File::Find(&files, &folders, folder + "/*", false);
+	// Apparently Bootil returns FULL (absolute) paths when File::Find is used on Linux. We don't want that..
 
 #ifdef __linux__
 	DIR *dir;
@@ -155,7 +154,15 @@ int LuaFunc_Exists( lua_State* state )
 
 int LuaFunc_CreateFolder( lua_State* state )
 {
-	if (!Bootil::File::CreateFolder(LUA->CheckString(1))) {
+	bool success = Bootil::File::CreateFolder(LUA->CheckString(1));
+
+	// WORKING AROUND A BOOTIL BUG.
+	// See garrynewman/bootil/pull/14
+	#ifdef __linux__
+	success = !success;
+	#endif
+
+	if (!success) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
 		return 2;
