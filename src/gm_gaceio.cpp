@@ -156,12 +156,6 @@ int LuaFunc_CreateFolder( lua_State* state )
 {
 	bool success = Bootil::File::CreateFolder(LUA->CheckString(1));
 
-	// WORKING AROUND A BOOTIL BUG.
-	// See garrynewman/bootil/pull/14
-	#ifdef __linux__
-	success = !success;
-	#endif
-
 	if (!success) {
 		LUA->PushBool(false);
 		LUA->PushString(Bootil::Platform::LastError().c_str());
